@@ -1,6 +1,6 @@
 const User = require('../../models/User/User');
 const authService = require('../../services/auth.service');
-const bcryptService = require('../../services/bcrypt.service');
+const argon2 = require('argon2');
 
 const AuthController = () => {
   const register = async (req, res) => {
@@ -43,13 +43,14 @@ const AuthController = () => {
           return res.status(400).json({ msg: 'Bad Request: User not found' });
         }
 
-        if (bcryptService().comparePassword(password, user.password)) {
+        if (argon2.verify(user.password, password)) {
           const token = authService().issue({ id: user.id });
-
           return res.status(200).json({ token, user });
+          
+        } else {
+          return res.status(401).json({ msg: 'Unauthorized' });
         }
 
-        return res.status(401).json({ msg: 'Unauthorized' });
       } catch (err) {
         console.log(err);
         return res.status(500).json({ msg: 'Internal server error' });

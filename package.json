@@ -2,14 +2,18 @@
   "name": "express-rest-api-boilerplate",
   "version": "0.0.0",
   "author": "Lukas Aichbauer <l.aichbauer@gmail.com>",
+  "contributors": [
+    "Meeplabs (http://meeplabs.com)",
+    "Cryptobyte <cryptobyte@lawlsec.org> (https://lawlsec.org)"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aichbauer/express-rest-api-boilerplate.git"
+    "url": "git+https://github.com/MeepLabs/express-graphql-boilerplate.git"
   },
-  "homepage": "https://github.com/aichbauer/express-rest-api-boilerplate#readme",
+  "homepage": "https://github.com/MeepLabs/express-graphql-boilerplate#readme",
   "bugs": {
-    "url": "https://github.com/aichbauer/express-rest-api-boilerplate/issues"
+    "url": "https://github.com/MeepLabs/express-graphql-boilerplate/issues"
   },
   "scripts": {
     "dev": "cross-env NODE_ENV=development node ./api/api.js",
@@ -44,7 +48,7 @@
   },
   "dependencies": {
     "apollo-server-express": "^1.3.6",
-    "bcrypt-nodejs": "^0.0.3",
+    "argon2": "^0.19.3",
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",
     "express": "^4.16.3",

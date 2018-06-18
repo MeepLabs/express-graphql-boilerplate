@@ -16,16 +16,12 @@ const updateUser = {
       name: 'id',
       type: new GraphQLNonNull(GraphQLInt),
     },
-    username: {
-      name: 'username',
-      type: GraphQLString,
-    },
     email: {
       name: 'email',
       type: GraphQLString,
     },
   },
-  resolve: async (user, { id, username, email }) => {
+  resolve: async (user, { id, email }) => {
     const foundUser = await User.findById(id);
 
     if (!foundUser) {
@@ -33,7 +29,6 @@ const updateUser = {
     }
 
     const updatedUser = merge(foundUser, {
-      username,
       email,
     });
 

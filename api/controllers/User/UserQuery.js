@@ -14,10 +14,6 @@ const userQuery = {
       name: 'id',
       type: GraphQLInt,
     },
-    username: {
-      name: 'username',
-      type: GraphQLString,
-    },
     email: {
       name: 'email',
       type: GraphQLString,

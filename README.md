@@ -11,6 +11,10 @@
 - built with [npm sripts](#npm-scripts)
 - examples for User, Note, and nested GraphQL Queries
 
+## Fork Notes
+
+This fork is intended to add some extra layers of security and add new features to the great existing boilerplate for [Meeplabs](https://github.com/MeepLabs) internal use.
+
 ## Quick Intro
 
 GraphQL is a Query Language where your REST API can co-exist directly beside your GraphQL API in **harmony**. To demonstrate this we have two REST endpoints for `register` and `login`.
@@ -30,11 +34,11 @@ curl -H "Content-Type: application/json" -X POST -d '{"email":"test@mail.com","p
 # you will get a JSON with a token and this is your token to get access to the GraphQL API
 curl -H "Content-Type: application/json" -X POST -d '{"email":"test@mail.com","password":"pw"}' http://localhost:2017/rest/login
 # requesting a User via the GraphQL API
-curl -i -H "Content-Type:application/json" -H "Authorization: Bearer <token>" -X POST -d '{"query": "{user{id, username}}"}'  http://localhost:2017/graphql
+curl -i -H "Content-Type:application/json" -H "Authorization: Bearer <token>" -X POST -d '{"query": "{user{id}}"}'  http://localhost:2017/graphql
 # creating a Note for a user via the GraphQL API
 curl -i -H "Content-Type:application/json" -H "Authorization: Bearer <token>" -X POST -d '{"query": "mutation{createNote(userId:1,note:\"this is a note\"){id,userId,note}}"}' http://localhost:2017/graphql
 # requesting a User with its Notes via the GraphQL API (nested Query)
-curl -i -H "Content-Type:application/json" -H "Authorization: Bearer <token>" -X POST -d '{"query": "{user{id, username, notes{id, note}}}"}'  http://localhost:2017/graphql
+curl -i -H "Content-Type:application/json" -H "Authorization: Bearer <token>" -X POST -d '{"query": "{user{id, notes{id, note}}}"}'  http://localhost:2017/graphql
 ```
 
 ## Table of Contents
@@ -141,10 +145,6 @@ const userQuery = {
       name: 'id',
       type: GraphQLInt,
     },
-    username: {
-      name: 'username',
-      type: GraphQLString,
-    },
     email: {
       name: 'email',
       type: GraphQLString,
@@ -199,10 +199,6 @@ const updateUser = {
       name: 'id',
       type: new GraphQLNonNull(GraphQLInt),
     },
-    username: {
-      name: 'username',
-      type: GraphQLString,
-    },
     email: {
       name: 'email',
       type: GraphQLString,
@@ -210,7 +206,7 @@ const updateUser = {
   },
   // find the User in the DB
   // update the fields for this user
-  resolve: (user, { id, username, email }) => (
+  resolve: (user, { id, email }) => (
     User
       .findById(id)
       .then((foundUser) => {
@@ -218,11 +214,9 @@ const updateUser = {
           return 'User not found';
         }
 
-        const thisUsername = username !== undefined ? username : foundUser.username;
         const thisEmail = email !== undefined ? email : foundUser.email;
 
         return foundUser.update({
-          username: thisUsername,
           email: thisEmail,
         });
       })
@@ -328,7 +322,7 @@ Example User Model:
 const Sequelize = require('sequelize');
 
 // for encrypting our passwords
-const bcryptSevice = require('../services/bcrypt.service');
+const argon2 = require('argon2');
 
 // the DB connection
 const sequelize = require('../../config/database');
@@ -336,7 +330,7 @@ const sequelize = require('../../config/database');
 // hooks are functions that can run before or after a specific event
 const hooks = {
   beforeCreate(user) {
-    user.password = bcryptSevice.password(user);
+    user.password = await argon2.hash(user.password);
   },
 };
 
@@ -358,10 +352,6 @@ const tableName = 'users';
 
 // the actual Model
 const User = sequelize.define('User', {
-  username: {
-    type: Sequelize.STRING,
-    unique: true,
-  },
   password: {
     type: Sequelize.STRING,
   },
@@ -392,10 +382,6 @@ const UserType = new GraphQLObjectType({
     id: {
       type: GraphQLInt,
       resolve: (user) => user.id,
-    },
-    username: {
-      type: GraphQLString,
-      resolve: (user) => user.username,
     },
     email: {
       type: GraphQLString,

@@ -1,22 +1,20 @@
 const Sequelize = require('sequelize');
-const bcryptSevice = require('../../services/bcrypt.service');
+const argon2 = require('argon2');
 
 const sequelize = require('../../../config/database');
 const Note = require('../Note/Note');
 
 const hooks = {
   beforeCreate(user) {
-    user.password = bcryptSevice().password(user); // eslint-disable-line no-param-reassign
+    return argon2.hash('password').then(hash => {
+      user.password = hash; // eslint-disable-line no-param-reassign
+    });
   },
 };
 
 const tableName = 'users';
 
 const User = sequelize.define('User', {
-  username: {
-    type: Sequelize.STRING,
-    unique: true,
-  },
   password: {
     type: Sequelize.STRING,
   },
